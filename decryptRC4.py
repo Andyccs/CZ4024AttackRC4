@@ -84,13 +84,7 @@ def decryptRC4(clienEncryptedLogFile='ClientLogEnc.dat', serverEncryptedLogFile=
           3)
       continue
 
-  print 'Proxy Plaintext'
-  for index, text in enumerate(proxyPlaintext):
-    print index, text
-
-  print 'Server Plaintext'
-  for index, text in enumerate(serverPlaintext):
-    print index, text
+  return proxyPlaintext, serverPlaintext
 
 
 def decryptIteratively(ciphers, probableServerPlaintext, probablyProxyPlaintext, numSpace):
@@ -162,4 +156,12 @@ def printBytesInBinary(bytes):
 
 
 if __name__ == '__main__':
-  decryptRC4()
+  serverPlaintext, proxyPlaintext = decryptRC4()
+
+  print 'Proxy Plaintext'
+  for index, text in enumerate(proxyPlaintext):
+    print index, text
+
+  print 'Server Plaintext'
+  for index, text in enumerate(serverPlaintext):
+    print index, text
