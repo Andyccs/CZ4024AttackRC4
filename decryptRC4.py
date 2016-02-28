@@ -23,15 +23,15 @@ BYTES_MESSAGE_INCORRECT_USERNAME = bytearray(MESSAGE_INCORRECT_USERNAME)
 BYTES_MESSAGE_PASSWORD_MISMATCH = bytearray(MESSAGE_PASSWORD_MISMATCH)
 
 
-def main():
+def decryptRC4(clienEncryptedLogFile='ClientLogEnc.dat', serverEncryptedLogFile='ServerLogEnc.dat'):
   proxyEncryptedMessage = None
   serverEncryptedMessage = None
 
-  with open('ClientLogEnc.dat') as f:
+  with open(clienEncryptedLogFile) as f:
     proxyEncryptedMessage = f.read()
     proxyEncryptedMessage = bytearray(proxyEncryptedMessage)
 
-  with open('ServerLogEnc.dat') as f:
+  with open(serverEncryptedLogFile) as f:
     serverEncryptedMessage = f.read()
     serverEncryptedMessage = bytearray(serverEncryptedMessage)
 
@@ -162,4 +162,4 @@ def printBytesInBinary(bytes):
 
 
 if __name__ == '__main__':
-  main()
+  decryptRC4()
