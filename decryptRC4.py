@@ -35,15 +35,17 @@ def decryptRC4(clienEncryptedLogFile='ClientLogEnc.dat', serverEncryptedLogFile=
     serverEncryptedMessage = f.read()
     serverEncryptedMessage = bytearray(serverEncryptedMessage)
 
+  # XOR the ciphertexts
   ciphertextXORarray = [
       proxyByte ^ serverByte
       for proxyByte, serverByte in zip(proxyEncryptedMessage, serverEncryptedMessage)
   ]
 
+  # Reshape the array to 30 * 128
   ciphertextXORarray = reshapeCipherTextArray(ciphertextXORarray, len(ciphertextXORarray) /
                                               LENGTH_OF_MESSAGE, LENGTH_OF_MESSAGE)
 
-  # len of proxyPlaintext adn serverPlaintext is len(ciphertextXORarray) / LENGTH_OF_MESSAGE
+  # length of proxyPlaintext and serverPlaintext is len(ciphertextXORarray) / LENGTH_OF_MESSAGE
   proxyPlaintext = ["" for i in range(len(ciphertextXORarray))]
   serverPlaintext = ["" for i in range(len(ciphertextXORarray))]
 
@@ -54,7 +56,7 @@ def decryptRC4(clienEncryptedLogFile='ClientLogEnc.dat', serverEncryptedLogFile=
     # with incorrect username and password
     plaintext = xorByteArray(ciphers, BYTES_MESSAGE_INCORRECT_USERNAME)
 
-    if startWithBytes(plaintext, BYTES_PREFIX_LOGIN):
+    if startWithBytes(plaintext, prefixes=BYTES_PREFIX_LOGIN):
       proxyPlaintext[index] = bytesToString(plaintext)
       serverPlaintext[index] = MESSAGE_INCORRECT_USERNAME
       continue
@@ -63,7 +65,7 @@ def decryptRC4(clienEncryptedLogFile='ClientLogEnc.dat', serverEncryptedLogFile=
     # correct username but incorrect password
     plaintext = xorByteArray(ciphers, BYTES_MESSAGE_PASSWORD_MISMATCH)
 
-    if startWithBytes(plaintext, BYTES_PREFIX_LOGIN):
+    if startWithBytes(plaintext, prefixes=BYTES_PREFIX_LOGIN):
       proxyPlaintext[index] = bytesToString(plaintext)
       serverPlaintext[index] = MESSAGE_PASSWORD_MISMATCH
       continue
@@ -71,17 +73,26 @@ def decryptRC4(clienEncryptedLogFile='ClientLogEnc.dat', serverEncryptedLogFile=
     # If server send welcome, then the client must have sent a correct login request. 
     # Get two characters every iteration
     partialProxyPlaintext = xorByteArray(ciphers[0:len(BYTES_PREFIX_WELCOME)], BYTES_PREFIX_WELCOME)
-    if startWithBytes(partialProxyPlaintext, BYTES_PREFIX_LOGIN):
+
+    if startWithBytes(partialProxyPlaintext, prefixes=BYTES_PREFIX_LOGIN):
       serverPlaintext[index], proxyPlaintext[index] = decryptIteratively(
-          ciphers, copy.deepcopy(BYTES_PREFIX_WELCOME), copy.deepcopy(BYTES_PREFIX_LOGIN), 1)
+          ciphers=ciphers,
+          probableServerPlaintext=copy.deepcopy(BYTES_PREFIX_WELCOME),
+          probablyProxyPlaintext=copy.deepcopy(BYTES_PREFIX_LOGIN),
+          numSpace=1)
       continue
 
+    # If server send reply message, then the client must have sent a message
+    # Get six characters every iteration
     partialProxyPlaintext = xorByteArray(ciphers[0:len(BYTES_PREFIX_REPLY_MESSAGE)],
                                          BYTES_PREFIX_REPLY_MESSAGE)
-    if startWithBytes(partialProxyPlaintext, BYTES_PREFIX_MESSAGE):
+
+    if startWithBytes(partialProxyPlaintext, prefixes=BYTES_PREFIX_MESSAGE):
       serverPlaintext[index], proxyPlaintext[index] = decryptIteratively(
-          ciphers, copy.deepcopy(BYTES_PREFIX_REPLY_MESSAGE), copy.deepcopy(BYTES_PREFIX_MESSAGE),
-          3)
+          ciphers=ciphers,
+          probableServerPlaintext=copy.deepcopy(BYTES_PREFIX_REPLY_MESSAGE),
+          probablyProxyPlaintext=copy.deepcopy(BYTES_PREFIX_MESSAGE),
+          numSpace=3)
       continue
 
   return proxyPlaintext, serverPlaintext
@@ -90,12 +101,14 @@ def decryptRC4(clienEncryptedLogFile='ClientLogEnc.dat', serverEncryptedLogFile=
 def decryptIteratively(ciphers, probableServerPlaintext, probablyProxyPlaintext, numSpace):
   partialProxyPlaintext = xorByteArray(ciphers[0:len(probableServerPlaintext)],
                                        probableServerPlaintext)
-  offset = len(probablyProxyPlaintext)
+
   partialServerPlaintext = probableServerPlaintext
   charactersPerIteration = len(probableServerPlaintext) - len(probablyProxyPlaintext)
+  offset = len(probablyProxyPlaintext)
   index = 0
   currentSpace = 0
 
+  # Reveal some characters in proxy plaintext every iteration
   while offset + (charactersPerIteration * index) + charactersPerIteration < LENGTH_OF_MESSAGE:
     characters = ["" for i in range(charactersPerIteration)]
     for j in range(charactersPerIteration):
@@ -109,8 +122,12 @@ def decryptIteratively(ciphers, probableServerPlaintext, probablyProxyPlaintext,
           characters = characters[0:j]
           break
 
+    # We reveal more characters in server plaintext, so we append it our current knowledge
+    # about server plaintext
     partialServerPlaintext.extend(characters)
 
+    # Since we have new information about server plaintext, we can reveal new information in
+    # proxy plaintext
     partialProxyPlaintext = xorByteArray(ciphers[0:len(partialServerPlaintext)],
                                          partialServerPlaintext)
 
@@ -156,7 +173,7 @@ def printBytesInBinary(bytes):
 
 
 if __name__ == '__main__':
-  proxyPlaintext, serverPlaintext  = decryptRC4()
+  proxyPlaintext, serverPlaintext = decryptRC4()
 
   print 'Proxy Plaintext'
   for index, text in enumerate(proxyPlaintext):

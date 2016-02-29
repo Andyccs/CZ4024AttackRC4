@@ -1,6 +1,6 @@
 # Attack RC4
 
-Assignment for CZ4024 Cryptography and Network Security
+Assignment for CZ4024 Cryptography and Network Security. The report of this assignment can be found [here](https://docs.google.com/document/d/1vQMD8h7lGahnZ7W6Se7_FtSsDA4M-sgDOLC2A7Hoa8c/edit?usp=sharing).
 
 # Problem Description:
 

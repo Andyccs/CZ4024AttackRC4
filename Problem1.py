@@ -4,6 +4,8 @@ _, proxyPlaintexts = decryptRC4()
 
 usernames = []
 for proxyPlaintext in proxyPlaintexts:
+
+  # If the plaintext start with welcome prefix, this means that the user has login successfully
   if proxyPlaintext.startswith(PREFIX_WELCOME):
     usernames.append(proxyPlaintext.replace(PREFIX_WELCOME, '').replace(' ', ''))
 
