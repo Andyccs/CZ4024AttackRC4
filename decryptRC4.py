@@ -156,7 +156,7 @@ def printBytesInBinary(bytes):
 
 
 if __name__ == '__main__':
-  serverPlaintext, proxyPlaintext = decryptRC4()
+  proxyPlaintext, serverPlaintext  = decryptRC4()
 
   print 'Proxy Plaintext'
   for index, text in enumerate(proxyPlaintext):
