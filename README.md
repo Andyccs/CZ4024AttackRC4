@@ -39,3 +39,12 @@ Solution: the following command will generate `Problem2.txt` that has a list of 
 ```Shell
 $ python Problem2.py
 ```
+
+# Compile to .exe files
+
+
+```Shell
+$ pip install cx_Freeze
+$ cxfreeze Problem1.py --target-dir dist
+$ cxfreeze Problem2.py --target-dir dist
+```
