@@ -1,4 +1,5 @@
 import copy
+import codecs
 
 PREFIX_LOGIN = 'LOGIN '
 PREFIX_MESSAGE = 'MESSAGE '
@@ -15,23 +16,23 @@ def addSpacesTillMaxLength(message):
 MESSAGE_INCORRECT_USERNAME = addSpacesTillMaxLength('INCORRECT USERNAME')
 MESSAGE_PASSWORD_MISMATCH = addSpacesTillMaxLength('PASSWORD MISMATCH')
 
-BYTES_PREFIX_LOGIN = bytearray(PREFIX_LOGIN)
-BYTES_PREFIX_MESSAGE = bytearray(PREFIX_MESSAGE)
-BYTES_PREFIX_WELCOME = bytearray(PREFIX_WELCOME)
-BYTES_PREFIX_REPLY_MESSAGE = bytearray(PREFIX_REPLY_MESSAGE)
-BYTES_MESSAGE_INCORRECT_USERNAME = bytearray(MESSAGE_INCORRECT_USERNAME)
-BYTES_MESSAGE_PASSWORD_MISMATCH = bytearray(MESSAGE_PASSWORD_MISMATCH)
+BYTES_PREFIX_LOGIN = bytearray(PREFIX_LOGIN, encoding='utf-8')
+BYTES_PREFIX_MESSAGE = bytearray(PREFIX_MESSAGE, encoding='utf-8')
+BYTES_PREFIX_WELCOME = bytearray(PREFIX_WELCOME, encoding='utf-8')
+BYTES_PREFIX_REPLY_MESSAGE = bytearray(PREFIX_REPLY_MESSAGE, encoding='utf-8')
+BYTES_MESSAGE_INCORRECT_USERNAME = bytearray(MESSAGE_INCORRECT_USERNAME, encoding='utf-8')
+BYTES_MESSAGE_PASSWORD_MISMATCH = bytearray(MESSAGE_PASSWORD_MISMATCH, encoding='utf-8')
 
 
 def decryptRC4(clienEncryptedLogFile='ClientLogEnc.dat', serverEncryptedLogFile='ServerLogEnc.dat'):
   proxyEncryptedMessage = None
   serverEncryptedMessage = None
 
-  with open(clienEncryptedLogFile) as f:
+  with open(clienEncryptedLogFile, 'rb') as f:
     proxyEncryptedMessage = f.read()
     proxyEncryptedMessage = bytearray(proxyEncryptedMessage)
 
-  with open(serverEncryptedLogFile) as f:
+  with open(serverEncryptedLogFile, 'rb') as f:
     serverEncryptedMessage = f.read()
     serverEncryptedMessage = bytearray(serverEncryptedMessage)
 
@@ -42,8 +43,8 @@ def decryptRC4(clienEncryptedLogFile='ClientLogEnc.dat', serverEncryptedLogFile=
   ]
 
   # Reshape the array to 30 * 128
-  ciphertextXORarray = reshapeCipherTextArray(ciphertextXORarray, len(ciphertextXORarray) /
-                                              LENGTH_OF_MESSAGE, LENGTH_OF_MESSAGE)
+  ciphertextXORarray = reshapeCipherTextArray(ciphertextXORarray, int(
+      len(ciphertextXORarray) / LENGTH_OF_MESSAGE), LENGTH_OF_MESSAGE)
 
   # length of proxyPlaintext and serverPlaintext is len(ciphertextXORarray) / LENGTH_OF_MESSAGE
   proxyPlaintext = ["" for i in range(len(ciphertextXORarray))]
@@ -137,7 +138,9 @@ def decryptIteratively(ciphers, probableServerPlaintext, probablyProxyPlaintext,
     index += 1
 
   serverPlaintext = addSpacesTillMaxLength(bytesToString(partialServerPlaintext))
-  proxyPlaintext = bytesToString(xorByteArray(ciphers, bytearray(serverPlaintext)))
+  proxyPlaintext = bytesToString(xorByteArray(ciphers,
+                                              bytearray(serverPlaintext,
+                                                        encoding='utf-8')))
 
   return serverPlaintext, proxyPlaintext
 
@@ -165,20 +168,20 @@ def reshapeCipherTextArray(bytes, rowDimension, columnDimension):
 
 
 def printBytesInHex(bytes):
-  print ' '.join(format(x, 'x') for x in bytes)
+  print(' '.join(format(x, 'x') for x in bytes))
 
 
 def printBytesInBinary(bytes):
-  print ' '.join(format(x, 'b') for x in bytes)
+  print(' '.join(format(x, 'b') for x in bytes))
 
 
 if __name__ == '__main__':
   proxyPlaintext, serverPlaintext = decryptRC4()
 
-  print 'Proxy Plaintext'
+  print('Proxy Plaintext')
   for index, text in enumerate(proxyPlaintext):
-    print index, text
+    print(index, text)
 
-  print 'Server Plaintext'
+  print('Server Plaintext')
   for index, text in enumerate(serverPlaintext):
-    print index, text
+    print(index, text)
