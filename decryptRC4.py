@@ -43,8 +43,10 @@ def decryptRC4(clienEncryptedLogFile='ClientLogEnc.dat', serverEncryptedLogFile=
   ]
 
   # Reshape the array to 30 * 128
-  ciphertextXORarray = reshapeCipherTextArray(ciphertextXORarray, int(
-      len(ciphertextXORarray) / LENGTH_OF_MESSAGE), LENGTH_OF_MESSAGE)
+  ciphertextXORarray = reshapeCipherTextArray(
+      ciphertextXORarray, \
+      int(len(ciphertextXORarray) / LENGTH_OF_MESSAGE), \
+      LENGTH_OF_MESSAGE)
 
   # length of proxyPlaintext and serverPlaintext is len(ciphertextXORarray) / LENGTH_OF_MESSAGE
   proxyPlaintext = ["" for i in range(len(ciphertextXORarray))]
