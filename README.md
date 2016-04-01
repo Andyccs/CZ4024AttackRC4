@@ -40,11 +40,12 @@ Solution: the following command will generate `Problem2.txt` that has a list of 
 $ python Problem2.py
 ```
 
-# Compile to .exe files
-
+# Generate submission files and compile to .exe files
 
 ```Shell
-$ pip install cx_Freeze
-$ cxfreeze Problem1.py --target-dir dist
-$ cxfreeze Problem2.py --target-dir dist
+$ python generate_submission.py
+$ cd submission
+$ pip install py2exe
+$ build_exe Problem1.py -c --bundle-files 0
+$ build_exe Problem2.py -c --bundle-files 0
 ```
